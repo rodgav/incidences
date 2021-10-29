@@ -2,8 +2,9 @@
 //
 //     final incidencesModel = incidencesModelFromJson(jsonString);
 
-import 'package:meta/meta.dart';
 import 'dart:convert';
+
+import 'package:incidencias/app/data/models/solu_inci_model.dart';
 
 IncidencesModel incidencesModelFromJson(String str) =>
     IncidencesModel.fromJson(json.decode(str));
@@ -28,7 +29,7 @@ class IncidencesModel {
       IncidencesModel(
         error: json["error"],
         mensaje: json["mensaje"],
-        total: json["total"],
+        total: json["total"] ?? 0,
         incidences: json["incidences"] != null
             ? List<Incidence>.from(
                 json["incidences"].map((x) => Incidence.fromJson(x)))
@@ -44,18 +45,20 @@ class IncidencesModel {
 }
 
 class Incidence {
-  Incidence({
-    required this.name,
-    required this.lastName,
-    required this.phone,
-    required this.typeIncid,
-    required this.title,
-    required this.description,
-    required this.pdfUrl,
-    required this.dateCreate,
-    required this.dateModifi,
-  });
+  Incidence(
+      {required this.idIncid,
+      required this.name,
+      required this.lastName,
+      required this.phone,
+      required this.typeIncid,
+      required this.title,
+      required this.description,
+      required this.pdfUrl,
+      required this.dateCreate,
+      required this.dateModifi,
+      required this.soluInci});
 
+  int idIncid;
   String name;
   String lastName;
   String phone;
@@ -65,20 +68,25 @@ class Incidence {
   String pdfUrl;
   DateTime dateCreate;
   DateTime dateModifi;
+  List<SoluInci> soluInci;
 
   factory Incidence.fromJson(Map<String, dynamic> json) => Incidence(
-        name: json["name"].toString(),
-        lastName: json["lastName"].toString(),
-        phone: json["phone"].toString(),
-        typeIncid: json["typeIncid"].toString(),
-        title: json["title"].toString(),
-        description: json["description"].toString(),
-        pdfUrl: json["pdfURL"].toString(),
-        dateCreate: DateTime.parse(json["dateCreate"]),
-        dateModifi: DateTime.parse(json["dateModifi"]),
-      );
+      idIncid: json["idIncid"],
+      name: json["name"].toString(),
+      lastName: json["lastName"].toString(),
+      phone: json["phone"].toString(),
+      typeIncid: json["typeIncid"].toString(),
+      title: json["title"].toString(),
+      description: json["description"].toString(),
+      pdfUrl: json["pdfURL"].toString(),
+      dateCreate: DateTime.parse(json["dateCreate"]),
+      dateModifi: DateTime.parse(json["dateModifi"]),
+      soluInci: json["0"] != null
+          ? List<SoluInci>.from(json["0"].map((x) => SoluInci.fromJson(x)))
+          : []);
 
   Map<String, dynamic> toJson() => {
+        "idIncid": idIncid,
         "name": name,
         "lastName": lastName,
         "phone": phone,
@@ -88,5 +96,6 @@ class Incidence {
         "pdfURL": pdfUrl,
         "dateCreate": dateCreate.toIso8601String(),
         "dateModifi": dateModifi.toIso8601String(),
+        "soluInci": soluInci
       };
 }

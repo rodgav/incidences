@@ -5,6 +5,7 @@ import 'incides_details_logic.dart';
 class IncidesDetailsBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => IncidesDetailsLogic());
+    Get.lazyPut<IncidesDetailsLogic>(
+        () => IncidesDetailsLogic(Get.parameters['idIncide'] ?? ''));
   }
 }

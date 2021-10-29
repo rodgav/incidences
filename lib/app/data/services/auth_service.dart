@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:incidencias/app/core/utils/helpers/encrypt_helper.dart';
-import 'package:incidencias/app/data/models/login_model.dart';
+import 'package:incidencias/app/data/models/users_model.dart';
 
 class AuthService extends GetxService {
   static AuthService get to => Get.find();
@@ -23,7 +23,7 @@ class AuthService extends GetxService {
 
   String? get user => _encryptHelper.decrypt(_getStorage.read('user') ?? '');
 
-  Future<void> login(Login login) async {
+  Future<void> login(User login) async {
     try {
       await _getStorage.write('userId', _encryptHelper.encrypt(login.id.toString()));
       await _getStorage.write('role', _encryptHelper.encrypt(login.role));

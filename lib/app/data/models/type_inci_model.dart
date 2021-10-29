@@ -2,7 +2,6 @@
 //
 //     final typeInciModel = typeInciModelFromJson(jsonString);
 
-import 'package:meta/meta.dart';
 import 'dart:convert';
 
 TypeInciModel typeInciModelFromJson(String str) =>

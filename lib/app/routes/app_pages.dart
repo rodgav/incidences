@@ -1,7 +1,5 @@
 import 'package:get/get.dart';
 import 'package:incidencias/app/data/middlewares/auth_middleware.dart';
-import 'package:incidencias/app/modules/dashboard/dashboard_binding.dart';
-import 'package:incidencias/app/modules/dashboard/dashboard_view.dart';
 import 'package:incidencias/app/modules/home/home_binding.dart';
 import 'package:incidencias/app/modules/home/home_view.dart';
 import 'package:incidencias/app/modules/incides/incides_binding.dart';
@@ -12,6 +10,10 @@ import 'package:incidencias/app/modules/login/login_binding.dart';
 import 'package:incidencias/app/modules/login/login_view.dart';
 import 'package:incidencias/app/modules/root/root_binding.dart';
 import 'package:incidencias/app/modules/root/root_view.dart';
+import 'package:incidencias/app/modules/solutions/solutions_binding.dart';
+import 'package:incidencias/app/modules/solutions/solutions_view.dart';
+import 'package:incidencias/app/modules/solutions_details/solutions_details_binding.dart';
+import 'package:incidencias/app/modules/solutions_details/solutions_details_view.dart';
 import 'package:incidencias/app/modules/users/users_binding.dart';
 import 'package:incidencias/app/modules/users/users_view.dart';
 
@@ -51,15 +53,17 @@ class AppPages {
                           name: _Paths.incidesDetails,
                           page: () => IncidesDetailsPage(),
                           binding: IncidesDetailsBinding())
-                    ])
-              ]),
-          GetPage(
-              preventDuplicates: true,
-              middlewares: [EnsureAdminMiddleware()],
-              name: _Paths.dashboard,
-              page: () => DashboardPage(),
-              binding: DashboardBinding(),
-              children: [
+                    ]),
+                GetPage(
+                    name: _Paths.solutions,
+                    page: () => SolutionsPage(),
+                    binding: SolutionsBinding(),
+                    children: [
+                      GetPage(
+                          name: _Paths.solutionsDetails,
+                          page: () => SolutionsDetailsPage(),
+                          binding: SolutionsDetailsBinding())
+                    ]),
                 GetPage(
                     name: _Paths.users,
                     page: () => UsersPage(),

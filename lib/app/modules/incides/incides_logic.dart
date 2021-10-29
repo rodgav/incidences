@@ -8,20 +8,23 @@ import 'package:incidencias/app/data/models/incidences_model.dart';
 import 'package:incidencias/app/data/models/type_inci_model.dart';
 import 'package:incidencias/app/data/repositorys/db_repository.dart';
 import 'package:incidencias/app/data/services/auth_service.dart';
+import 'package:incidencias/app/routes/app_pages.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class IncidesLogic extends GetxController {
   final _dataRepository = Get.find<DbRepository>();
-  final formKey = GlobalKey<FormState>();
-  final TextEditingController titleCtrl = TextEditingController();
-  final TextEditingController descCtrl = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _titleCtrl = TextEditingController();
+  final TextEditingController _descCtrl = TextEditingController();
+  final scrollController = ScrollController();
   TypeInciModel? _typeInciModel;
   TypeInci? _typeInci;
   TypeInci? _typeInciNew;
   IncidencesModel? _incidencesModel;
   Uint8List? _bytes;
   String _nameFile = 'Seleccionar...';
-  int index = 0;
-  int limit = 25;
+  int _index = 0;
+  final int _limit = 25;
 
   TypeInciModel? get typeInciModel => _typeInciModel;
 
@@ -34,7 +37,16 @@ class IncidesLogic extends GetxController {
   @override
   void onReady() {
     _getTypeInci();
+    _setupScrollController();
     super.onReady();
+  }
+
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _descCtrl.dispose();
+    scrollController.dispose();
+    super.dispose();
   }
 
   void _getTypeInci() async {
@@ -51,7 +63,7 @@ class IncidesLogic extends GetxController {
     if (reload) {
       _incidencesModel =
           IncidencesModel(error: false, mensaje: '', total: 0, incidences: []);
-      index = 0;
+      _index = 0;
     }
     IncidencesModel oldIncidencesModel;
     IncidencesModel newIncidencesModel;
@@ -61,11 +73,11 @@ class IncidesLogic extends GetxController {
       oldIncidencesModel =
           IncidencesModel(error: false, mensaje: '', total: 0, incidences: []);
     }
-    if (oldIncidencesModel.total >= index) {
+    if (oldIncidencesModel.total >= _index) {
       final newInc = await _dataRepository.getIncidences(map: {
         'idTypeIncid': idTypeInci == 0 ? '' : idTypeInci.toString(),
-        'index': index.toString(),
-        'limit': limit.toString()
+        'index': _index.toString(),
+        'limit': _limit.toString()
       });
       if (newInc != null) {
         newIncidencesModel = newInc;
@@ -73,7 +85,7 @@ class IncidesLogic extends GetxController {
         newIncidencesModel = IncidencesModel(
             error: false, mensaje: '', total: 0, incidences: []);
       }
-      index = index + limit + 1;
+      _index = _index + _limit + 1;
     } else {
       newIncidencesModel =
           IncidencesModel(error: false, mensaje: '', total: 0, incidences: []);
@@ -132,7 +144,22 @@ class IncidesLogic extends GetxController {
     Get.rootDelegate.popRoute();
   }
 
-  void newIncid() {
+  void _setupScrollController() {
+    scrollController.addListener(() {
+      if (scrollController.offset >=
+              scrollController.position.maxScrollExtent &&
+          !scrollController.position.outOfRange) {
+        _getIncids(typeInci!.id, false);
+      }
+      if (scrollController.offset <=
+              scrollController.position.minScrollExtent &&
+          !scrollController.position.outOfRange) {
+        _getIncids(typeInci!.id, true);
+      }
+    });
+  }
+
+  void newIncid(String action, {int idIncid = 0}) {
     Get.dialog(Scaffold(
       backgroundColor: Colors.transparent,
       body: Center(
@@ -143,17 +170,17 @@ class IncidesLogic extends GetxController {
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Form(
-              key: formKey,
+              key: _formKey,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Stack(
                     children: [
-                      const Center(
+                       Center(
                         child: Text(
-                          'Nueva tarea',
-                          style: TextStyle(
+                          '${action == 'new' ? 'Nuevo' : 'Actualizar'} Incidente',
+                          style:const TextStyle(
                               color: Colors.black,
                               fontSize: 24,
                               fontWeight: FontWeight.bold),
@@ -182,7 +209,7 @@ class IncidesLogic extends GetxController {
                   ),
                   const SizedBox(height: 2),
                   TextFormField(
-                    controller: titleCtrl,
+                    controller: _titleCtrl,
                     validator: (value) => isNotEmpty(value),
                     decoration: InputDecoration(
                         hintText: 'Título',
@@ -210,7 +237,7 @@ class IncidesLogic extends GetxController {
                   const SizedBox(height: 2),
                   TextFormField(
                     maxLines: 2,
-                    controller: descCtrl,
+                    controller: _descCtrl,
                     validator: (value) => isNotEmpty(value),
                     decoration: InputDecoration(
                         hintText: 'Descripciòn',
@@ -291,7 +318,9 @@ class IncidesLogic extends GetxController {
                   const SizedBox(height: 20),
                   Center(
                     child: ElevatedButton(
-                        onPressed: createIncidence,
+                        onPressed: () => action == 'new'
+                            ? createIncidence()
+                            : _updateIncid(idIncid),
                         child: const Text('Guardar')),
                   ),
                   const SizedBox(height: 20),
@@ -305,20 +334,22 @@ class IncidesLogic extends GetxController {
   }
 
   void createIncidence() async {
-    if (formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate()) {
       if (typeInciNew != null) {
         if (AuthService.to.userId != null) {
           if (_bytes != null) {
+            _dialogLoading();
             final incidence = await _dataRepository.createIncidence(map: {
-              'title': titleCtrl.text,
-              'description': descCtrl.text,
+              'title': _titleCtrl.text,
+              'description': _descCtrl.text,
               'idTypeIncid': typeInciNew!.id.toString(),
               'idUser': AuthService.to.userId.toString(),
               'pdf': base64Encode(_bytes!),
             });
             if (incidence != null) {
-              titleCtrl.clear();
-              descCtrl.clear();
+              _bytes = null;
+              _titleCtrl.clear();
+              _descCtrl.clear();
               _getIncids(typeInci!.id, true);
               toBack();
             } else {
@@ -330,6 +361,83 @@ class IncidesLogic extends GetxController {
         } else {
           _snackBar(Colors.red, 'ERROR',
               'No tienes permisos para realizar esta acción');
+        }
+      } else {
+        _snackBar(Colors.red, 'ERROR', 'Seleccione un tipo de incidente');
+      }
+    }
+  }
+
+  void toPDF(String pdfUrl) async {
+    await canLaunch(pdfUrl)
+        ? await launch(pdfUrl)
+        : throw 'Could not launch $pdfUrl';
+  }
+
+  void selPopup(String value, Incidence incidence) {
+    switch (value) {
+      case 'detail':
+        Get.rootDelegate
+            .toNamed(Routes.incidesDetails(incidence.idIncid.toString()));
+        break;
+      case 'pdf':
+        toPDF(incidence.pdfUrl);
+        break;
+      case 'edit':
+        if (incidence.name == AuthService.to.name &&
+                incidence.lastName == AuthService.to.lastName ||
+            AuthService.to.role == 'admin') {
+          _titleCtrl.text = incidence.title;
+          _descCtrl.text = incidence.description;
+          newIncid('edit', idIncid: incidence.idIncid);
+        } else {
+          _snackBar(Colors.red, 'ERROR',
+              'No tienes permisos para realizar esta acción');
+        }
+        break;
+      default:
+        break;
+    }
+  }
+  void _dialogLoading() {
+    Get.dialog(
+        WillPopScope(
+          onWillPop: () async => false,
+          child: const Center(
+            child: SizedBox(
+              width: 60,
+              height: 60,
+              child: CircularProgressIndicator(
+                strokeWidth: 10,
+              ),
+            ),
+          ),
+        ),
+        barrierDismissible: false);
+  }
+  void _updateIncid(int idIncid) async {
+    if (_formKey.currentState!.validate()) {
+      if (typeInciNew != null) {
+        if (_bytes != null) {
+          _dialogLoading();
+          final incidence = await _dataRepository.updaIncid(map: {
+            'title': _titleCtrl.text,
+            'description': _descCtrl.text,
+            'idTypeIncid': typeInciNew!.id.toString(),
+            'idIncid': idIncid.toString(),
+            'pdf': base64Encode(_bytes!),
+          });toBack();
+          if (incidence != null) {
+            _bytes = null;
+            _titleCtrl.clear();
+            _descCtrl.clear();
+            _getIncids(typeInci!.id, true);
+            toBack();
+          } else {
+            _snackBar(Colors.red, 'ERROR', 'Error al crear la incidencia');
+          }
+        } else {
+          _snackBar(Colors.red, 'ERROR', 'Seleccione un archivo PDF');
         }
       } else {
         _snackBar(Colors.red, 'ERROR', 'Seleccione un tipo de incidente');

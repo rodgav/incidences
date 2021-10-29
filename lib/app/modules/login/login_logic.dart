@@ -34,16 +34,16 @@ class LoginLogic extends GetxController {
   void login() async {
     if (formKey.currentState!.validate()) {
       _dialogLoading();
-      final loginModel = await _dataRepository.login(
+      final userModel = await _dataRepository.login(
           user: emailCtrl.text.trim(),
-          password: _encrypt.encrypt(passCtrl.text.trim()) ?? '');
+          password: _encrypt.encrypt(passCtrl.text.trim()));
       Get.back();
-      if (loginModel != null) {
-        if (!loginModel.error) {
-          await AuthService.to.login(loginModel.login[0]);
+      if (userModel != null) {
+        if (!userModel.error) {
+          await AuthService.to.login(userModel.users[0]);
           Get.rootDelegate.offNamed(Routes.home);
         } else {
-          _snackBar(Colors.red, 'Ocurrio un error', loginModel.mensaje);
+          _snackBar(Colors.red, 'Ocurrio un error', userModel.mensaje);
         }
       } else {
         _snackBar(
