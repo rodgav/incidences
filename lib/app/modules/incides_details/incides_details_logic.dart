@@ -252,7 +252,8 @@ class IncidesDetailsLogic extends GetxController {
   void createSolution() async {
     if (_formKey.currentState!.validate()) {
       if (AuthService.to.userId != null) {
-        if (_bytes != null) { _dialogLoading();
+        if (_bytes != null) {
+          _dialogLoading();
           final incidence = await _dataRepository.createSolution(map: {
             'idIncid': _idIncid,
             'title': _titleCtrl.text,
@@ -260,12 +261,13 @@ class IncidesDetailsLogic extends GetxController {
             'idUser': AuthService.to.userId.toString(),
             'pdf': base64Encode(_bytes!),
           });
+          Get.back();
           if (incidence != null) {
             _bytes = null;
             _titleCtrl.clear();
             _descCtrl.clear();
             _getSoluInciIdInci();
-            toBack();
+            Get.back();
           } else {
             _snackBar(Colors.red, 'ERROR', 'Error al crear la solucíón');
           }
@@ -280,6 +282,10 @@ class IncidesDetailsLogic extends GetxController {
   }
 
   void newIncid() {
+    if (incidence != null) {
+      _titleCtrl.text = incidence!.title;
+      _descCtrl.text = incidence!.description;
+    }
     Get.dialog(Scaffold(
       backgroundColor: Colors.transparent,
       body: Center(
@@ -449,6 +455,7 @@ class IncidesDetailsLogic extends GetxController {
       ),
     ));
   }
+
   void _dialogLoading() {
     Get.dialog(
         WillPopScope(
@@ -465,23 +472,26 @@ class IncidesDetailsLogic extends GetxController {
         ),
         barrierDismissible: false);
   }
+
   void _updateIncid() async {
     if (_formKey.currentState!.validate()) {
       if (typeInciNew != null) {
-        if (_bytes != null) { _dialogLoading();
+        if (_bytes != null) {
+          _dialogLoading();
           final incidence = await _dataRepository.updaIncid(map: {
             'title': _titleCtrl.text,
             'description': _descCtrl.text,
             'idTypeIncid': typeInciNew!.id.toString(),
             'idIncid': _idIncid.toString(),
             'pdf': base64Encode(_bytes!),
-          });toBack();
+          });
+          Get.back();
           if (incidence != null) {
             _bytes = null;
             _titleCtrl.clear();
             _descCtrl.clear();
             _getIncidence();
-            toBack();
+            Get.back();
           } else {
             _snackBar(Colors.red, 'ERROR', 'Error al crear la incidencia');
           }

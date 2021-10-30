@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:incidencias/app/data/services/auth_service.dart';
 import 'package:incidencias/app/modules/home/home_logic.dart';
 
 class DrawerHome extends StatelessWidget {
@@ -47,7 +48,7 @@ class DrawerHome extends StatelessWidget {
                               color: sel == 'Incidentes'
                                   ? Colors.white
                                   : Colors.black),
-                          title:  Text('Incidentes',
+                          title: Text('Incidentes',
                               style: TextStyle(
                                   color: sel == 'Incidentes'
                                       ? Colors.white
@@ -63,34 +64,39 @@ class DrawerHome extends StatelessWidget {
                               color: sel == 'Soluciones'
                                   ? Colors.white
                                   : Colors.black),
-                          title:  Text('Soluciones',
+                          title: Text('Soluciones',
                               style: TextStyle(
                                   color: sel == 'Soluciones'
                                       ? Colors.white
                                       : Colors.black)),
                           onTap: () => logic.selDrawer('Soluciones'),
                         ),
-                        ListTile(
-                          selected: sel == 'Usuarios',
-                          selectedTileColor: sel == 'Usuarios'
-                              ? Colors.blue
-                              : Colors.transparent,
-                          leading: Icon(Icons.person_outline,
-                              color: sel == 'Usuarios'
-                                  ? Colors.white
-                                  : Colors.black),
-                          title: Text(
-                              'Usuarios',
-                              style: TextStyle(
-                                  color: sel == 'Usuarios'
-                                      ? Colors.white
-                                      : Colors.black)
-                          ),
-                          onTap: () => logic.selDrawer('Usuarios'),
-                        ),
+                        AuthService.to.role == 'admin'
+                            ? ListTile(
+                                selected: sel == 'Usuarios',
+                                selectedTileColor: sel == 'Usuarios'
+                                    ? Colors.blue
+                                    : Colors.transparent,
+                                leading: Icon(Icons.person_outline,
+                                    color: sel == 'Usuarios'
+                                        ? Colors.white
+                                        : Colors.black),
+                                title: Text('Usuarios',
+                                    style: TextStyle(
+                                        color: sel == 'Usuarios'
+                                            ? Colors.white
+                                            : Colors.black)),
+                                onTap: () => logic.selDrawer('Usuarios'),
+                              )
+                            : const SizedBox(),
                       ],
                     ),
                   ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.lock),
+                  title: const Text('Cambiar contraseña'),
+                  onTap: logic.updaPass,
                 ),
                 ListTile(
                   leading: const Icon(Icons.close, color: Colors.red),

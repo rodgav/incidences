@@ -24,11 +24,18 @@ class LoginLogic extends GetxController {
     return 'Ingrese su contraseña';
   }
 
-  @override
+  /*@override
   void onReady() {
     emailCtrl.text = 'admin@gmail.com';
     passCtrl.text = 'passwordUserAdmin';
     super.onReady();
+  }*/
+
+  @override
+  void onClose() {
+    emailCtrl.dispose();
+    passCtrl.dispose();
+    super.onClose();
   }
 
   void login() async {

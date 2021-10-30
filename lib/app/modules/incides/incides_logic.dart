@@ -345,13 +345,13 @@ class IncidesLogic extends GetxController {
               'idTypeIncid': typeInciNew!.id.toString(),
               'idUser': AuthService.to.userId.toString(),
               'pdf': base64Encode(_bytes!),
-            });
+            }); Get.back();
             if (incidence != null) {
               _bytes = null;
               _titleCtrl.clear();
               _descCtrl.clear();
               _getIncids(typeInci!.id, true);
-              toBack();
+              Get.back();
             } else {
               _snackBar(Colors.red, 'ERROR', 'Error al crear la incidencia');
             }
@@ -426,13 +426,13 @@ class IncidesLogic extends GetxController {
             'idTypeIncid': typeInciNew!.id.toString(),
             'idIncid': idIncid.toString(),
             'pdf': base64Encode(_bytes!),
-          });toBack();
+          }); Get.back();
           if (incidence != null) {
             _bytes = null;
             _titleCtrl.clear();
             _descCtrl.clear();
             _getIncids(typeInci!.id, true);
-            toBack();
+            Get.back();
           } else {
             _snackBar(Colors.red, 'ERROR', 'Error al crear la incidencia');
           }

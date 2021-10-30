@@ -87,6 +87,10 @@ class UsersLogic extends GetxController {
     switch (value) {
       case 'edit':
         if (AuthService.to.role == 'admin') {
+          _nameCtrl.text= user.name;
+          _lastNameCtrl.text = user.lastName;
+          _phoneCtrl.text = user.phone;
+          _userCtrl.text = user.user;
           newUser('edit', idUser: user.id);
         } else {
           _snackBar(Colors.red, 'ERROR',
@@ -316,7 +320,7 @@ class UsersLogic extends GetxController {
                   ),
                   const SizedBox(height: 10),
                   const Text(
-                    'Tipo de incidente',
+                    'Tipo de usuario',
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 18,
@@ -324,7 +328,7 @@ class UsersLogic extends GetxController {
                   ),
                   const SizedBox(height: 2),
                   GetBuilder<UsersLogic>(
-                      id: 'typeIncisNew',
+                      id: 'rolesNew',
                       builder: (_) {
                         return Container(
                           decoration: BoxDecoration(
@@ -334,7 +338,7 @@ class UsersLogic extends GetxController {
                           child: DropdownButton<Role>(
                             isExpanded: true,
                             value: roleNew,
-                            hint: const Text('Tipo de incidente'),
+                            hint: const Text('Tipo de usuario'),
                             underline: const SizedBox(),
                             items: rolesModel!.roles
                                 .map((e) => DropdownMenuItem<Role>(
@@ -375,13 +379,14 @@ class UsersLogic extends GetxController {
             'user': _userCtrl.text,
             'password': _encrypt.encrypt(_phoneCtrl.text),
           });
+          Get.back();
           if (response != null) {
             _nameCtrl.clear();
             _lastNameCtrl.clear();
             _phoneCtrl.clear();
             _userCtrl.clear();
             _getUsers(role!.id, true);
-            toBack();
+            Get.back();
           } else {
             _snackBar(Colors.red, 'ERROR', 'Error al crear usuario');
           }
@@ -425,14 +430,14 @@ class UsersLogic extends GetxController {
           'user': _userCtrl.text,
           'password': _encrypt.encrypt(_phoneCtrl.text),
         });
-        toBack();
+        Get.back();
         if (incidence != null) {
           _nameCtrl.clear();
           _lastNameCtrl.clear();
           _phoneCtrl.clear();
           _userCtrl.clear();
           _getUsers(role!.id, true);
-          toBack();
+          Get.back();
         } else {
           _snackBar(Colors.red, 'ERROR', 'Error al actualizar usuario');
         }

@@ -288,13 +288,13 @@ class SolutionsDetailsLogic extends GetxController {
             'title': _titleCtrl.text,
             'description': _descCtrl.text,
             'pdf': base64Encode(_bytes!),
-          });toBack();
+          }); Get.back();
           if (response != null) {
             _bytes = null;
             _titleCtrl.clear();
             _descCtrl.clear();
             _getSolut();
-            toBack();
+            Get.back();
           } else {
             _snackBar(Colors.red, 'ERROR', 'Error al actualizar la solucíón');
           }
