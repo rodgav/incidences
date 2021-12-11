@@ -1,6 +1,7 @@
 import 'package:encrypt/encrypt.dart';
 
 class EncryptHelper {
+
   static final _key = Key.fromUtf8('incidenciasAbCD1');
   final _iv = IV.fromLength(16);
   final _encrypter = Encrypter(AES(_key));
